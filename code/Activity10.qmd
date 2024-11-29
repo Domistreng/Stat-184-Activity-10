@@ -1,0 +1,172 @@
+---
+title: Activity 10
+format: html
+author: Dominic Sitto
+date: November 20th, 2024
+self-contained: true
+---
+
+## dependencies
+
+Dataset: tortillas[^1]
+```{r}
+library(ggplot2)
+
+library(tidyverse)
+library(Stat2Data)
+library(dplyr)
+library(ggplot2)
+library(dcData)
+
+tacoData <- read_csv("tortilla_data.csv")
+
+# should have named data set tortillaData instead...
+```
+
+## Question 1
+
+```{r}
+myFunction <- function(x){
+  y <- (cos(4*x) + tan(0.5*x))^4
+  return(y)
+}
+
+ggplot() +
+  stat_function(
+    fun = myFunction,
+    xlim = c(0, 1),
+    n = 1000
+  ) +
+  theme_bw() +
+  labs(
+    x = "x",
+    y = "h(x)"
+  )
+```
+
+## Question 2
+```{r}
+data(BabyNames)
+
+dominicSet <- BabyNames %>%
+    filter(name == "Dominic") %>%
+    filter(sex == "M") %>%
+    select(year, count, name)
+
+deniseSet <- BabyNames %>%
+    filter(name == "Denise") %>%
+    filter(sex == "F") %>%
+    select(year, count, name)
+
+louSet <- BabyNames %>%
+    filter(name == "Lou") %>%
+    filter(sex == "M") %>%
+    select(year, count, name)
+
+totalSet <- dominicSet %>%
+    bind_rows(deniseSet) %>%
+    bind_rows(louSet)
+
+ggplot(totalSet, aes(x = year, y = count)) + 
+  geom_line(aes(color = name)) + 
+  scale_color_manual(values = c("darkgoldenRod1", "red", "blue"))
+```
+
+## Question 3
+
+### (a) 
+
+```{r}
+avgPrice2007 <- tacoData %>%
+  filter(year == 2007) %>%
+  summarize(average_price = mean(price))
+# Takes average price only from 2017
+print(avgPrice2007)
+```
+
+### (b) 
+
+```{r}
+avgPrice2024 <- tacoData %>%
+  filter(year == 2024) %>%
+  summarize(average_price = mean(price))
+# Takes average price only from 2024
+print(avgPrice2024)
+```
+
+### (c) 
+
+```{r}
+print(((avgPrice2024 - avgPrice2007) / avgPrice2007) * 100)
+# 100% * (Top Value - Smaller Value) / Original Value
+```
+
+### (d) 
+
+```{r}
+avgPrices <- tacoData %>%
+  group_by(year) %>%
+  summarize(average_price = mean(price))
+# Only take the average from every year insetad of the entire set
+
+ggplot(avgPrices, aes(x = year, y = average_price)) + 
+  geom_line()
+```
+
+### (e) 
+
+```{r}
+#| output: asis
+library(simplermarkdown)
+
+tortillaData2016 <- tacoData %>%
+  filter(year == 2016) %>%
+  group_by(state) %>%
+  select(state, price) %>%
+  summarize(
+      count = n(),
+      min = min(price), 
+      firstQuartile = quantile(price, probs = 0.25), 
+      median = median(price), 
+      thirdQuartile = quantile(price, probs = 0.75), 
+      max = max(price),
+      mad = mad(price),
+      mean = mean(price),
+      std = sd(price)
+  )
+tortillaData2016 <- as.data.frame(tortillaData2016)
+
+cat("Prices Statistics in Different States (2016)" ,md_table(tortillaData2016))
+
+ggplot(data=tacoData, mapping=aes(x=state, y=price))+
+  geom_boxplot() + ggtitle("Prices of Tortillas in Different Mexican States (2016)")
+# I am unsure how to add a caption with GGPlot2
+print("Coahuila had the cheapest tortillas while Sonora had the more expensive tortillas")
+
+```
+
+### (f) 
+
+```{r}
+nuevoData <- tacoData %>%
+  filter(state == "NuevoLeon")
+
+ggplot(nuevoData, aes(x=year, y=price, group=storeType, color=storeType)) +
+  geom_line()+ ggtitle("Prices of Tortillas in differnet types of stores in the state of Nuevo León")
+# Grouping by type in the ggplot is a very simple way to present the two different lines on the single plot
+print("Throughout every year the Mom and Pop stores consistently were sold tortillas for more money than Big Retail stores, although the quality / size of these tortilals is not accounted for.")
+
+
+
+```
+
+### (g) 
+
+
+![Tortilla](tortillaimage.jpeg)
+
+#### Citation: Gallagher, Joanne. “Easy Soft Flour Tortillas.” Inspired Taste - Easy Recipes for Home Cooks, 17 Aug. 2024, www.inspiredtaste.net/48394/flour-tortillas/. 
+
+### (h) 
+
+[^1]: Rick Chavelas via Kaggle at https://www.kaggle.com/datasets/richave/tortilla-prices-in-mexico
