@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Dominic Sitto">
-
+<html>
 <title>Activity 10</title>
 <style>
 code{white-space: pre-wrap;}
@@ -3887,3 +3887,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 </body></html>
+</html>
